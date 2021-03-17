@@ -1,17 +1,25 @@
-name: "LPMP_WOT"
+name: "LPMP WOT"
 output_dir: ../docs
 navbar:
-  title: "LPMP_WOT"
+  title: "LPMP WOT"
   left:
-  - text: Home
-    href: index.html
-  - text: About
-    href: about.html
-  - text: License
-    href: license.html
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+    - text: "Analysis"
+      menu:
+        - text: "Divergence analysis"
+          href: divergence-analysis.html
+  right:
+    - text: "License"
+      href: license.html
+    - icon: fab fa-github
+      href: https://github.com/jma1991/LPMP_WOT
 output:
   workflowr::wflow_html:
-    toc: yes
-    toc_float: yes
+    toc: true
+    toc_float: true
     theme: cosmo
     highlight: textmate
+    df_print: paged
