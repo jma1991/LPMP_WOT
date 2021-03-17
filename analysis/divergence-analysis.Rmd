@@ -1,0 +1,365 @@
+---
+title: "Divergence Analysis"
+author: "James Ashmore"
+date: "22/02/2021"
+output: html_document
+---
+
+## Setup
+
+Set chunk options:
+
+```{r}
+knitr::opts_chunk$set(
+  cache      = FALSE,
+  dev        = "png",
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE,
+  fig.align = "center",
+  out.width = '100%'
+)
+```
+
+Load Bioconductor packages:
+
+```{r}
+library(scater)
+library(scran)
+library(scuttle)
+```
+
+Load CRAN packages:
+
+```{r}
+library(ggforce)
+library(here)
+```
+
+Define helper functions:
+
+```{r}
+resizeGuides <- function(object, pointSize = 0.5, textSize = 3, spaceLegend = 0.1) {
+    object + 
+        guides(
+            shape = guide_legend(ncol = 1, override.aes = list(size = pointSize)),
+            color = guide_legend(ncol = 1, override.aes = list(size = pointSize))
+        ) + 
+        theme(
+            legend.title = element_text(size = textSize),
+            legend.text  = element_text(size = textSize),
+            legend.key.size = unit(spaceLegend, "lines")
+        )
+}
+```
+
+Define colour palettes:
+
+```{r}
+EmbryoStageColours <- c(
+    "E6.5"               = "#D53E4F",
+    "E6.75"              = "#F46D43",
+    "E7.0"               = "#FDAE61",
+    "E7.25"              = "#FEE08B",
+    "E7.5"               = "#FFFFBF",
+    "E7.75"              = "#E6F598",
+    "E8.0"               = "#ABDDA4",
+    "E8.25"              = "#66C2A5",
+    "E8.5"               = "#3288BD",
+    "mixed_gastrulation" = "#A9A9A9"
+)
+
+EmbryoTheilerColours <- c(
+    "TS9"    = "#D7191C",
+    "TS10"   = "#FDAE61",
+    "TS11"   = "#ABDDA4",
+    "TS12"   = "#2B83BA",
+    "TS9-10" = "#A9A9A9"
+)
+
+EmbryoCelltypeColours <- c(
+    "Allantois"                      = "#532C8A",
+    "Anterior Primitive Streak"      = "#C19F70",
+    "Blood progenitors 1"            = "#F9DECF",
+    "Blood progenitors 2"            = "#C9A997",
+    "Cardiomyocytes"                 = "#B51D8D",
+    "Caudal Mesoderm"                = "#3F84AA",
+    "Caudal epiblast"                = "#9E6762",
+    "Caudal neurectoderm"            = "#354E23",
+    "Def. endoderm"                  = "#F397C0",
+    "Endothelium"                    = "#FF891C",
+    "Epiblast"                       = "#635547",
+    "Erythroid1"                     = "#C72228",
+    "Erythroid2"                     = "#F79083",
+    "Erythroid3"                     = "#EF4E22",
+    "ExE ectoderm"                   = "#989898",
+    "ExE endoderm"                   = "#7F6874",
+    "ExE mesoderm"                   = "#8870AD",
+    "Forebrain/Midbrain/Hindbrain"   = "#647A4F",
+    "Gut"                            = "#EF5A9D",
+    "Haematoendothelial progenitors" = "#FBBE92",
+    "Intermediate mesoderm"          = "#139992",
+    "Mesenchyme"                     = "#CC7818",
+    "Mixed mesoderm"                 = "#DFCDE4",
+    "NMP"                            = "#8EC792",
+    "Nascent mesoderm"               = "#C594BF",
+    "Neural crest"                   = "#C3C388",
+    "Notochord"                      = "#0F4A9C",
+    "PGC"                            = "#FACB12",
+    "Paraxial mesoderm"              = "#8DB5CE",
+    "Parietal endoderm"              = "#1A1A1A",
+    "Pharyngeal mesoderm"            = "#C9EBFB",
+    "Primitive Streak"               = "#DABE99",
+    "Rostral neurectoderm"           = "#65A83E",
+    "Somitic mesoderm"               = "#005579",
+    "Spinal cord"                    = "#CDE088",
+    "Surface ectoderm"               = "#F7F79E",
+    "Visceral endoderm"              = "#F6BFCB"
+)
+```
+
+Read experiment object:
+
+```{r}
+con <- here("data/EmbryoAtlasData.LPMP.rds")
+
+sce <- readRDS(con)
+```
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(sce, use.coldata = TRUE, use.dimred = "UMAP")
+```
+
+## Exploration
+
+Plot cells coloured by stage annotation:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = stage)) + 
+    geom_point(size = 0.1) + 
+    scale_colour_manual(name = "Stage", values = EmbryoStageColours, na.translate = FALSE) + 
+    guides(colour = guide_legend(override.aes = list(size = 2))) + 
+    theme_no_axes() + 
+    theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by theiler annotation:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = theiler)) + 
+    geom_point(size = 0.1) + 
+    scale_colour_manual(name = "Theiler", values = EmbryoTheilerColours, na.translate = FALSE) + 
+    guides(colour = guide_legend(override.aes = list(size = 2))) + 
+    theme_no_axes() + 
+    theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by celltype annotation:
+
+```{r}
+plt <- ggplot(dat, aes(UMAP.1, UMAP.2, colour = celltype)) + 
+    geom_point(size = 0.1) + 
+    scale_colour_manual(name = "Celltype", values = EmbryoCelltypeColours, na.translate = FALSE) + 
+    theme_no_axes() + 
+    theme(aspect.ratio = 1)
+
+resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)
+```
+
+## Divergence {.tabset}
+
+### Endothelium vs Paraxial mesoderm
+
+Plot cells coloured by Endothelium odds annotation:
+
+```{r}
+dat$odds_8.5_endothelium <- dat$fates_8.5_endothelium / (1 - dat$fates_8.5_endothelium)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_endothelium)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Endothelium)", low = "#EBEBEB", high = EmbryoCelltypeColours["Endothelium"]) +
+    facet_wrap( ~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Paraxial mesoderm odds annotation:
+
+```{r}
+dat$odds_8.5_paraxial.mesoderm <- dat$fates_8.5_paraxial.mesoderm / (1 - dat$fates_8.5_paraxial.mesoderm)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_paraxial.mesoderm)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Paraxial mesoderm)", low = "#EBEBEB", high = EmbryoCelltypeColours["Paraxial mesoderm"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Endothelium vs Paraxial mesoderm odds annotation:
+
+```{r}
+dat$odds_8.5_endothelium_paraxial.mesoderm <- log(dat$odds_8.5_endothelium / dat$odds_8.5_paraxial.mesoderm)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_endothelium_paraxial.mesoderm)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient2(
+        name = "Log Odds (Endothelium / Paraxial mesoderm)",
+        high = EmbryoCelltypeColours["Endothelium"],
+        mid = "#EBEBEB",
+        low = EmbryoCelltypeColours["Paraxial mesoderm"]
+    ) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+### Allantois vs Cardiomyocytes
+
+Plot cells coloured by Allantois odds annotation:
+
+```{r}
+dat$odds_8.5_allantois <- dat$fates_8.5_allantois / (1 - dat$fates_8.5_allantois)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_allantois)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Allantois)", low = "#EBEBEB", high = EmbryoCelltypeColours["Allantois"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Cardiomyocytes odds annotation:
+
+```{r}
+dat$odds_8.5_cardiomyocytes <- dat$fates_8.5_cardiomyocytes / (1 - dat$fates_8.5_cardiomyocytes)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_cardiomyocytes)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Cardiomyocytes)", low = "#EBEBEB", high = EmbryoCelltypeColours["Cardiomyocytes"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Allantois vs Cardiomyocytes odds annotation:
+
+```{r}
+dat$odds_8.5_allantois_cardiomyocytes <- log(dat$odds_8.5_allantois / dat$odds_8.5_cardiomyocytes)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_allantois_cardiomyocytes)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient2(
+        name = "Log Odds (Allantois / Cardiomyocytes)",
+        high = EmbryoCelltypeColours["Allantois"],
+        mid = "#EBEBEB",
+        low = EmbryoCelltypeColours["Cardiomyocytes"]
+    ) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+### Cardiomyocytes vs Pharyngeal mesoderm
+
+Plot cells coloured by Cardiomyocytes odds annotation:
+
+```{r}
+dat$odds_8.5_cardiomyocytes <- dat$fates_8.5_cardiomyocytes / (1 - dat$fates_8.5_cardiomyocytes)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_cardiomyocytes)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Cardiomyocytes)", low = "#EBEBEB", high = EmbryoCelltypeColours["Cardiomyocytes"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Pharyngeal mesoderm odds annotation:
+
+```{r}
+dat$odds_8.5_pharyngeal.mesoderm <- dat$fates_8.5_pharyngeal.mesoderm / (1 - dat$fates_8.5_pharyngeal.mesoderm)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_pharyngeal.mesoderm)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Pharyngeal mesoderm)", low = "#EBEBEB", high = EmbryoCelltypeColours["Pharyngeal mesoderm"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Cardiomyocytes vs Pharyngeal mesoderm odds annotation:
+
+```{r}
+dat$odds_8.5_cardiomyocytes_pharyngeal.mesoderm <- log(dat$odds_8.5_cardiomyocytes / dat$odds_8.5_pharyngeal.mesoderm)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_cardiomyocytes_pharyngeal.mesoderm)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient2(
+        name = "Log Odds (Cardiomyocytes / Pharyngeal mesoderm)",
+        high = EmbryoCelltypeColours["Cardiomyocytes"],
+        mid = "#EBEBEB",
+        low = EmbryoCelltypeColours["Pharyngeal mesoderm"]
+    ) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+### ExE mesoderm vs Mesenchyme
+
+Plot cells coloured by ExE mesoderm odds annotation:
+
+```{r}
+dat$odds_8.5_extraembryonic.mesoderm <- dat$fates_8.5_extraembryonic.mesoderm / (1 - dat$fates_8.5_extraembryonic.mesoderm)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_extraembryonic.mesoderm)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (ExE mesoderm)", low = "#EBEBEB", high = EmbryoCelltypeColours["ExE mesoderm"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by Mesenchyme odds annotation:
+
+```{r}
+dat$odds_8.5_mesenchyme <- dat$fates_8.5_mesenchyme / (1 - dat$fates_8.5_mesenchyme)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_mesenchyme)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient(name = "Odds (Mesenchyme)", low = "#EBEBEB", high = EmbryoCelltypeColours["Mesenchyme"]) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+Plot cells coloured by ExE mesoderm vs Mesenchyme odds annotation:
+
+```{r}
+dat$odds_8.5_extraembryonic.mesoderm_mesenchyme <- log(dat$odds_8.5_extraembryonic.mesoderm / dat$odds_8.5_mesenchyme)
+
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = odds_8.5_extraembryonic.mesoderm_mesenchyme)) +
+    geom_point(size = 0.1) +
+    scale_colour_gradient2(
+        name = "Log Odds (ExE mesoderm / Mesenchyme)",
+        high = EmbryoCelltypeColours["ExE mesoderm"],
+        mid = "#EBEBEB",
+        low = EmbryoCelltypeColours["Mesenchyme"]
+    ) +
+    facet_wrap(~ stage, nrow = 2) +
+    theme_no_axes() +
+    theme(aspect.ratio = 1, legend.position = "top")
+```
+
+## Summary
+
+### Session
+
+Print session information:
+
+```{r}
+sessionInfo()
+```
