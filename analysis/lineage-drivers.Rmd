@@ -1,0 +1,749 @@
+---
+title: "Lineage drivers"
+author: "James Ashmore"
+date: "2021-08-05"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Setup
+
+Set chunk options:
+
+```{r}
+knitr::opts_chunk$set(
+  cache      = FALSE,
+  dev        = "png",
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE,
+  fig.align = "center",
+  out.width = '100%'
+)
+```
+
+```{r, include = FALSE}
+DT::datatable(matrix()) # Import datatable options, quietly
+```
+
+Load Bioconductor packages:
+
+```{r}
+library(batchelor)
+library(scater)
+library(scran)
+library(scuttle)
+library(slingshot)
+```
+
+Load CRAN packages:
+
+```{r}
+library(ggforce)
+library(patchwork)
+```
+
+Source helper functions:
+
+```{r}
+source("code/intersectRows.R")
+source("code/quickCorrect.R")
+source("code/dist_clusters_diag.R")
+source("code/resizeGuides.R")
+```
+
+Define aesthetic labels:
+
+```{r}
+EmbryoFateLabels <- c(
+  "fate_7.25_ehf" = "Fate/E7.25/EHF", 
+  "fate_7.5_ehf"  = "Fate/E7.5/EHF", 
+  "fate_7.75_ehf" = "Fate/E7.75/EHF", 
+  "fate_8.0_ehf"  = "Fate/E8.0/EHF",
+  "fate_7.5_lhf"  = "Fate/E7.5/LHF",
+  "fate_7.75_lhf" = "Fate/E7.75/LHF",
+  "fate_8.0_lhf"  = "Fate/E8.0/LHF"
+)
+
+EmbryoTrajectoryLabels <- c(
+  "trajectory_7.25_ehf" = "Trajectory/E7.25/EHF", 
+  "trajectory_7.5_ehf"  = "Trajectory/E7.5/EHF", 
+  "trajectory_7.75_ehf" = "Trajectory/E7.75/EHF", 
+  "trajectory_8.0_ehf"  = "Trajectory/E8.0/EHF",
+  "trajectory_7.5_lhf"  = "Trajectory/E7.5/LHF",
+  "trajectory_7.75_lhf" = "Trajectory/E7.75/LHF",
+  "trajectory_8.0_lhf"  = "Trajectory/E8.0/LHF"
+)
+```
+
+Define colour palettes:
+
+```{r}
+EmbryoStageColours <- c(
+    "E6.5"               = "#D53E4F",
+    "E6.75"              = "#F46D43",
+    "E7.0"               = "#FDAE61",
+    "E7.25"              = "#FEE08B",
+    "E7.5"               = "#FFFFBF",
+    "E7.75"              = "#E6F598",
+    "E8.0"               = "#ABDDA4",
+    "E8.25"              = "#66C2A5",
+    "E8.5"               = "#3288BD",
+    "mixed_gastrulation" = "#A9A9A9"
+)
+
+EmbryoTheilerColours <- c(
+    "TS9"    = "#D7191C",
+    "TS10"   = "#FDAE61",
+    "TS11"   = "#ABDDA4",
+    "TS12"   = "#2B83BA",
+    "TS9-10" = "#A9A9A9"
+)
+
+EmbryoCelltypeColours <- c(
+    "Allantois"                      = "#532C8A",
+    "Anterior Primitive Streak"      = "#C19F70",
+    "Blood progenitors 1"            = "#F9DECF",
+    "Blood progenitors 2"            = "#C9A997",
+    "Cardiomyocytes"                 = "#B51D8D",
+    "Caudal Mesoderm"                = "#3F84AA",
+    "Caudal epiblast"                = "#9E6762",
+    "Caudal neurectoderm"            = "#354E23",
+    "Def. endoderm"                  = "#F397C0",
+    "Endothelium"                    = "#FF891C",
+    "Epiblast"                       = "#635547",
+    "Erythroid1"                     = "#C72228",
+    "Erythroid2"                     = "#F79083",
+    "Erythroid3"                     = "#EF4E22",
+    "ExE ectoderm"                   = "#989898",
+    "ExE endoderm"                   = "#7F6874",
+    "ExE mesoderm"                   = "#8870AD",
+    "Forebrain/Midbrain/Hindbrain"   = "#647A4F",
+    "Gut"                            = "#EF5A9D",
+    "Haematoendothelial progenitors" = "#FBBE92",
+    "Intermediate mesoderm"          = "#139992",
+    "Mesenchyme"                     = "#CC7818",
+    "Mixed mesoderm"                 = "#DFCDE4",
+    "NMP"                            = "#8EC792",
+    "Nascent mesoderm"               = "#C594BF",
+    "Neural crest"                   = "#C3C388",
+    "Notochord"                      = "#0F4A9C",
+    "PGC"                            = "#FACB12",
+    "Paraxial mesoderm"              = "#8DB5CE",
+    "Parietal endoderm"              = "#1A1A1A",
+    "Pharyngeal mesoderm"            = "#C9EBFB",
+    "Primitive Streak"               = "#DABE99",
+    "Rostral neurectoderm"           = "#65A83E",
+    "Somitic mesoderm"               = "#005579",
+    "Spinal cord"                    = "#CDE088",
+    "Surface ectoderm"               = "#F7F79E",
+    "Visceral endoderm"              = "#F6BFCB"
+)
+
+EmbryoSourceColours <- c(
+    "MGD" = "#CFCFCF",
+    "EHF" = "#E15759",
+    "LHF" = "#4E79A7"
+)
+```
+
+Read experiment object:
+
+```{r}
+sce <- readRDS("data/EmbryoAtlasData.LPMP.rds")
+```
+
+Define source annotation:
+
+```{r}
+sce$source <- "MGD"
+
+sce$source[sce$sample == "EHF"] <- "EHF"
+
+sce$source[sce$sample == "LHF"] <- "LHF"
+```
+
+Define data annotation:
+
+```{r}
+sce$data <- "reference"
+
+sce$data[sce$sample == "EHF"] <- "query"
+
+sce$data[sce$sample == "LHF"] <- "query"
+```
+
+## Exploration
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(sce)
+
+dat <- split(dat, dat$data)
+```
+
+Plot cells coloured by stage annotation:
+
+```{r}
+ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = stage)) + 
+    geom_point(size = 0.1) + 
+    scale_colour_manual(name = "Stage", values = EmbryoStageColours) + 
+    guides(colour = guide_legend(override.aes = list(size = 2))) + 
+    geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+    scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+    theme_no_axes() + 
+    theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by theiler annotation:
+
+```{r}
+ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = theiler)) + 
+    geom_point(size = 0.1) + 
+    scale_colour_manual(name = "Theiler", values = EmbryoTheilerColours) + 
+    guides(colour = guide_legend(override.aes = list(size = 2))) + 
+    geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+    scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+    theme_no_axes() + 
+    theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by celltype annotation:
+
+```{r}
+plt <- ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = celltype)) + 
+    geom_point(size = 0.1) + 
+    scale_colour_manual(name = "Celltype", values = EmbryoCelltypeColours) + 
+    geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+    scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+    theme_no_axes() + 
+    theme(aspect.ratio = 1)
+
+resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)
+```
+
+## Trajectory
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(sce)
+```
+
+Plot E7.25 EHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_7.25_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E7.25/EHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.5 EHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_7.5_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E7.5/EHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.75 EHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_7.75_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E7.75/EHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E8.0 EHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_8.0_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E8.0/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.5 LHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_7.5_lhf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E7.5/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.75 LHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_7.75_lhf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E7.75/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E8.0 LHF trajectory:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = trajectory_8.0_lhf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Trajectory/E8.0/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+## Fate
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(sce)
+```
+
+Plot E7.25 EHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_7.25_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E7.25/EHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.5 EHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_7.5_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E7.5/EHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.75 EHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_7.75_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E7.75/EHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E8.0 EHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_8.0_ehf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E8.0/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.5 LHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_7.5_lhf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E7.5/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E7.75 LHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_7.75_lhf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E7.75/LHF") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot E8.0 LHF fate:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_8.0_lhf)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Probability") + 
+  ggtitle("Fate/E8.0/LHF)") + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+## Selection
+
+Take a random sample of 500 cells based on their trajectory probability:
+
+```{r}
+set.seed(0001001011)
+
+N <- 500
+
+itr <- c(
+  "fates_7.25_ehf", 
+  "fates_7.5_ehf", 
+  "fates_7.75_ehf", 
+  "fates_8.0_ehf", 
+  "fates_7.5_lhf", 
+  "fates_7.75_lhf", 
+  "fates_8.0_lhf"
+)
+
+out <- lapply(itr, function(i) {
+  
+  p <- colData(sce)[, i]
+  
+  p[is.na(p)] <- 0
+  
+  sample(colnames(sce), N, replace = TRUE, prob = p)
+
+})
+
+names(out) <- itr
+
+ids <- unlist(out)
+
+ids <- c(ids, colnames(sce)[sce$sample %in% c("EHF", "LHF")])
+
+ids <- unique(ids)
+```
+
+Subset experiment object by include annotation:
+
+```{r}
+alt <- sce[, ids]
+```
+
+Subset celltype colours for downstream plotting:
+
+```{r}
+ind <- names(EmbryoCelltypeColours) %in% all$celltype
+
+EmbryoCelltypeColours <- EmbryoCelltypeColours[ind]
+```
+
+## Correction
+
+Create merge order for batch correction:
+
+```{r}
+dat <- table(alt$sample, alt$stage)
+
+dat <- as.data.frame(dat, stringsAsFactors = FALSE)
+
+colnames(dat) <- c("sample", "stage", "ncells")
+
+dat <- subset(dat, ncells > 0)
+
+dat <- subset(dat, !sample %in% c("EHF", "LHF"))
+
+var <- c("E6.5", "E6.75", "E7.0", "mixed_gastrulation", "E7.25", "E7.5", "E7.75", "E8.0", "E8.25", "E8.5")
+
+dat$stage <- factor(dat$stage, levels = var, ordered = TRUE)
+
+dat <- dat[order(dat$stage, dat$ncells, decreasing = TRUE), ]
+
+idx <- c(dat$sample, "LHF", "EHF")
+```
+
+Quickly perform batch correction:
+
+```{r}
+mnn <- quickCorrect(
+  alt, 
+  batch = alt$sample, 
+  correct.all = TRUE, 
+  PARAM = FastMnnParam(merge.order = idx),
+  hvg.args = list(
+    var.field = "bio",
+    var.threshold = 0
+  )
+)
+
+metadata(mnn$corrected)$combineVar <- mnn$dec
+
+metadata(mnn$corrected)$getTopHVGs <- mnn$hvgs
+
+mnn <- mnn$corrected
+```
+
+Copy column and assay data:
+
+```{r}
+colData(mnn) <- colData(alt)
+
+logcounts(mnn) <- logcounts(alt)
+```
+
+## Dignostics
+
+Perform UMAP on corrected PCA matrix:
+
+```{r}
+set.seed(1001001000)
+
+mnn <- runUMAP(mnn, dimred = "corrected")
+```
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(mnn)
+
+dat <- split(dat, dat$data)
+```
+
+Plot cells coloured by stage annotation:
+
+```{r}
+ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = stage)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = "Stage", values = EmbryoStageColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
+  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by theiler annotation:
+
+```{r}
+ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = theiler)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = "Theiler", values = EmbryoTheilerColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
+  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by celltype annotation:
+
+```{r}
+plt <- ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = celltype)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = "Celltype", values = EmbryoCelltypeColours) + 
+  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+
+resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)
+```
+
+## Trajectory {.tabset}
+
+Perform lineage inference with Slingshot:
+
+```{r}
+mnn <- slingshot(
+  data = mnn, 
+  reducedDim = "corrected", 
+  dist.fun = dist_clusters_diag
+)
+```
+
+Perform DiffusionMap on corrected PCA matrix:
+
+```{r}
+set.seed(1011000110)
+
+mnn <- runDiffusionMap(mnn, dimred = "corrected")
+```
+
+## Lineage 1
+
+Embed and construct curve data:
+
+```{r}
+sc1 <- embedCurves(mnn, "DiffusionMap")
+
+sc1 <- slingCurves(sc1)[[1]]
+
+sc1 <- data.frame(sc1$s[sc1$ord, ])
+
+colnames(sc1) <- c("DiffusionMap.1", "DiffusionMap.2")
+```
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(mnn)
+
+dat <- split(dat, dat$data)
+```
+
+Plot cells coloured by pseudotime annotation:
+
+```{r}
+ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = slingPseudotime_1)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_viridis_c(name = "Pseudotime") + 
+  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by stage annotation:
+
+```{r}
+ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = stage)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = "Stage", values = EmbryoStageColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
+  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by theiler annotation:
+
+```{r}
+ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = theiler)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = "Theiler", values = EmbryoTheilerColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
+  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by celltype annotation:
+
+```{r}
+plt <- ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = celltype)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = "Celltype", values = EmbryoCelltypeColours) + 
+  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = "Sample", values = c(1, 4)) + 
+  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+
+resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)
+```
+
+## Pseudotime {.tabset}
+
+## Lineage 1
+
+Test for differences along pseudotime:
+
+```{r}
+res <- testPseudotime(
+  x = logcounts(mnn),
+  pseudotime = mnn$slingPseudotime_1,
+  block = mnn$batch,
+  assay.type = "logcounts"
+)
+```
+
+Subset results by significance threshold:
+
+```{r}
+sig <- subset(res, FDR < 0.05)
+```
+
+Display table of significant results:
+
+```{r}
+knitr::knit_print(DT::datatable(sig))
+```
+
+Plot top 50 up-regulated genes:
+
+```{r}
+sig.up <- subset(sig, logFC > 0)
+
+sig.up <- sig.up[order(sig.up$logFC, decreasing = TRUE), ]
+
+plotHeatmap(
+  object = fit, 
+  features = head(rownames(sig.up), n = 50), 
+  exprs_values = "reconstructed", 
+  center = TRUE,
+  colour_columns_by = c("celltype", "source"), 
+  order_columns_by = "slingPseudotime_1", 
+  column_annotation_colors = list(
+    celltype = EmbryoCelltypeColours,
+    source = EmbryoSourceColours
+  )
+)
+```
+
+Plot top 50 down-regulated genes:
+
+```{r}
+sig.down <- subset(sig, logFC < 0)
+
+sig.down <- sig.down[order(sig.down$logFC, decreasing = FALSE), ]
+
+plotHeatmap(
+  object = fit, 
+  features = head(rownames(sig.down), n = 50), 
+  exprs_values = "reconstructed", 
+  center = TRUE,
+  colour_columns_by = c("celltype", "source"), 
+  order_columns_by = "slingPseudotime_1", 
+  column_annotation_colors = list(
+    celltype = EmbryoCelltypeColours,
+    source = EmbryoSourceColours
+  )
+)
+```
+
+## Summary
+
+### Session
+
+Print session information:
+
+```{r}
+sessionInfo()
+```

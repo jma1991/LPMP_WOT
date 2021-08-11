@@ -1,5 +1,5 @@
 ---
-title: "Divergence Analysis"
+title: "Divergence analysis"
 author: "James Ashmore"
 date: "22/02/2021"
 output: html_document
