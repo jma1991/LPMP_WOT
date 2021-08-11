@@ -676,7 +676,9 @@ resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)
 Test for differences along pseudotime:
 
 ```{r}
-res <- TSCAN::testPseudotime(
+library(TSCAN)
+
+res <- testPseudotime(
   x = logcounts(mnn),
   pseudotime = mnn$slingPseudotime_1,
   block = mnn$batch,
