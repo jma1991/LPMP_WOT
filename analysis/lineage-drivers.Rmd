@@ -455,7 +455,7 @@ alt <- sce[, ids]
 Subset celltype colours for downstream plotting:
 
 ```{r}
-ind <- names(EmbryoCelltypeColours) %in% all$celltype
+ind <- names(EmbryoCelltypeColours) %in% alt$celltype
 
 EmbryoCelltypeColours <- EmbryoCelltypeColours[ind]
 ```
