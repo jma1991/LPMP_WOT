@@ -11,7 +11,6 @@ Set chunk options:
 
 ```{r}
 knitr::opts_chunk$set(
-  autodep    = TRUE,
   cache      = FALSE,
   dev        = "png",
   echo       = TRUE,
