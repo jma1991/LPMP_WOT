@@ -590,7 +590,7 @@ set.seed(1011000110)
 mnn <- runDiffusionMap(mnn, dimred = "corrected")
 ```
 
-## Lineage 1
+### Lineage 1
 
 Embed and construct curve data:
 
@@ -670,7 +670,7 @@ resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)
 
 ## Pseudotime {.tabset}
 
-## Lineage 1
+### Lineage 1
 
 Test for differences along pseudotime:
 
