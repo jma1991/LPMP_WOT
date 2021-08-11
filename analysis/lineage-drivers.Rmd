@@ -681,8 +681,7 @@ library(TSCAN)
 res <- testPseudotime(
   x = logcounts(mnn),
   pseudotime = mnn$slingPseudotime_1,
-  block = mnn$batch,
-  assay.type = "logcounts"
+  block = mnn$batch
 )
 ```
 
