@@ -14,8 +14,7 @@ Set chunk options:
 ```{r}
 knitr::opts_chunk$set(
   autodep    = TRUE,
-  cache      = TRUE,
-  cache.path = "cache/lineage-drivers.Rmd/",
+  cache      = FALSE,
   dev        = "png",
   echo       = TRUE,
   error      = FALSE,
