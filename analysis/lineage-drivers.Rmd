@@ -13,13 +13,14 @@ Set chunk options:
 
 ```{r}
 knitr::opts_chunk$set(
-  cache      = FALSE,
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = "cache/lineage-drivers.Rmd/",
   dev        = "png",
+  echo       = TRUE,
   error      = FALSE,
   message    = FALSE,
-  warning    = FALSE,
-  fig.align = "center",
-  out.width = '100%'
+  warning    = FALSE
 )
 ```
 
@@ -705,7 +706,7 @@ sig.up <- subset(sig, logFC > 0)
 sig.up <- sig.up[order(sig.up$logFC, decreasing = TRUE), ]
 
 plotHeatmap(
-  object = fit, 
+  object = mnn, 
   features = head(rownames(sig.up), n = 50), 
   exprs_values = "reconstructed", 
   center = TRUE,
@@ -726,7 +727,7 @@ sig.down <- subset(sig, logFC < 0)
 sig.down <- sig.down[order(sig.down$logFC, decreasing = FALSE), ]
 
 plotHeatmap(
-  object = fit, 
+  object = mnn, 
   features = head(rownames(sig.down), n = 50), 
   exprs_values = "reconstructed", 
   center = TRUE,

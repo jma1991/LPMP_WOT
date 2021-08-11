@@ -11,13 +11,14 @@ Set chunk options:
 
 ```{r}
 knitr::opts_chunk$set(
-  cache      = FALSE,
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = "cache/divergence-analysis.Rmd/",
   dev        = "png",
+  echo       = TRUE,
   error      = FALSE,
   message    = FALSE,
-  warning    = FALSE,
-  fig.align = "center",
-  out.width = '100%'
+  warning    = FALSE
 )
 ```
 
