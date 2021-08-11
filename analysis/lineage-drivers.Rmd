@@ -694,7 +694,7 @@ sig <- subset(res, FDR < 0.05)
 Display table of significant results:
 
 ```{r}
-knitr::knit_print(DT::datatable(sig))
+knitr::knit_print(DT::datatable(as.data.frame(sig)))
 ```
 
 Plot top 50 up-regulated genes:
