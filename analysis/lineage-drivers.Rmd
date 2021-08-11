@@ -698,7 +698,7 @@ knitr::knit_print(DT::datatable(as.data.frame(sig)))
 
 Plot top 50 up-regulated genes:
 
-```{r}
+```{r fig.width = 14, fig.height = 9}
 sig.up <- subset(sig, logFC > 0)
 
 sig.up <- sig.up[order(sig.up$logFC, decreasing = TRUE), ]
@@ -719,7 +719,7 @@ plotHeatmap(
 
 Plot top 50 down-regulated genes:
 
-```{r}
+```{r fig.width = 14, fig.height = 9}
 sig.down <- subset(sig, logFC < 0)
 
 sig.down <- sig.down[order(sig.down$logFC, decreasing = FALSE), ]
