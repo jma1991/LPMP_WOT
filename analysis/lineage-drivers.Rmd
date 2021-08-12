@@ -478,7 +478,7 @@ EmbryoCelltypeColours <- EmbryoCelltypeColours[ind]
 Create a per-cell data frame:
 
 ```{r}
-dat <- makePerCellDF(sce)
+dat <- makePerCellDF(alt)
 ```
 
 Display the cells which have been selected:
