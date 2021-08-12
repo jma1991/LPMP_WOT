@@ -451,6 +451,22 @@ Subset experiment object by include annotation:
 alt <- sce[, ids]
 ```
 
+Subset stage colours for downstream plotting:
+
+```{r}
+ind <- names(EmbryoStageColours) %in% alt$stage
+
+EmbryoStageColours <- EmbryoStageColours[ind]
+```
+
+Subset theiler colours for downstream plotting:
+
+```{r}
+ind <- names(EmbryoTheilerColours) %in% alt$theiler
+
+EmbryoTheilerColours <- EmbryoTheilerColours[ind]
+```
+
 Subset celltype colours for downstream plotting:
 
 ```{r}
