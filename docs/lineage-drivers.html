@@ -500,16 +500,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991LPMPWOTtree75356fcde8eed05248f3212db74f5f1bd076ecaatargetblank75356fca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/LPMP_WOT/tree/75356fcde8eed05248f3212db74f5f1bd076ecaa" target="_blank">75356fc</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991LPMPWOTtree6f8cae6f05e0935098e8defa66e7ea1b67fee962targetblank6f8cae6a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/LPMP_WOT/tree/6f8cae6f05e0935098e8defa66e7ea1b67fee962" target="_blank">6f8cae6</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991LPMPWOTtree75356fcde8eed05248f3212db74f5f1bd076ecaatargetblank75356fca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991LPMPWOTtree6f8cae6f05e0935098e8defa66e7ea1b67fee962targetblank6f8cae6a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/LPMP_WOT/tree/75356fcde8eed05248f3212db74f5f1bd076ecaa" target="_blank">75356fc</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/LPMP_WOT/tree/6f8cae6f05e0935098e8defa66e7ea1b67fee962" target="_blank">6f8cae6</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -571,6 +571,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/LPMP_WOT/blob/6f8cae6f05e0935098e8defa66e7ea1b67fee962/analysis/lineage-drivers.Rmd" target="_blank">6f8cae6</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-08-12
+</td>
+<td>
+Build
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/LPMP_WOT/a7c2dfb2c65262f12114dad6ff2b14adc183b1e5/docs/lineage-drivers.html" target="_blank">a7c2dfb</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-08-12
+</td>
+<td>
+Build
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1799,6 +1833,14 @@ ids &lt;- c(ids, colnames(sce)[sce$sample %in% c(&quot;EHF&quot;, &quot;LHF&quot
 ids &lt;- unique(ids)</code></pre>
 <p>Subset experiment object by include annotation:</p>
 <pre class="r"><code>alt &lt;- sce[, ids]</code></pre>
+<p>Subset stage colours for downstream plotting:</p>
+<pre class="r"><code>ind &lt;- names(EmbryoStageColours) %in% alt$stage
+
+EmbryoStageColours &lt;- EmbryoStageColours[ind]</code></pre>
+<p>Subset theiler colours for downstream plotting:</p>
+<pre class="r"><code>ind &lt;- names(EmbryoTheilerColours) %in% alt$theiler
+
+EmbryoTheilerColours &lt;- EmbryoTheilerColours[ind]</code></pre>
 <p>Subset celltype colours for downstream plotting:</p>
 <pre class="r"><code>ind &lt;- names(EmbryoCelltypeColours) %in% alt$celltype
 
@@ -1865,101 +1907,6 @@ dat &lt;- split(dat, dat$data)</code></pre>
   scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
   theme_no_axes() + 
   theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-39-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-39-1">
-Past versions of unnamed-chunk-39-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-39-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/a23ca9f54c6e3227fb5f8a96f58fc2da9eeff115/docs/figure/lineage-drivers.Rmd/unnamed-chunk-39-1.png" target="_blank">a23ca9f</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Plot cells coloured by theiler annotation:</p>
-<pre class="r"><code>ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = theiler)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(name = &quot;Theiler&quot;, values = EmbryoTheilerColours) + 
-  guides(colour = guide_legend(override.aes = list(size = 2))) + 
-  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
-  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
-  theme_no_axes() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-40-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-40-1">
-Past versions of unnamed-chunk-40-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-40-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/a23ca9f54c6e3227fb5f8a96f58fc2da9eeff115/docs/figure/lineage-drivers.Rmd/unnamed-chunk-40-1.png" target="_blank">a23ca9f</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Plot cells coloured by celltype annotation:</p>
-<pre class="r"><code>plt &lt;- ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = celltype)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
-  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
-  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
-  theme_no_axes() + 
-  theme(aspect.ratio = 1)
-
-resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)</code></pre>
 <p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-41-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-41-1">
@@ -1998,6 +1945,27 @@ James Ashmore
 </table>
 </div>
 </div>
+<p>Plot cells coloured by theiler annotation:</p>
+<pre class="r"><code>ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = theiler)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = &quot;Theiler&quot;, values = EmbryoTheilerColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
+  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)</code></pre>
+<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-42-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Plot cells coloured by celltype annotation:</p>
+<pre class="r"><code>plt &lt;- ggplot(dat$reference, aes(UMAP.1, UMAP.2, colour = celltype)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
+  geom_point(data = dat$query, aes(UMAP.1, UMAP.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+
+resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)</code></pre>
+<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-43-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="trajectory-1" class="section level2 tabset">
 <h2 class="tabset">Trajectory</h2>
@@ -2029,102 +1997,6 @@ dat &lt;- split(dat, dat$data)</code></pre>
 <pre class="r"><code>ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = slingPseudotime_1)) + 
   geom_point(size = 0.1) + 
   scale_colour_viridis_c(name = &quot;Pseudotime&quot;) + 
-  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
-  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
-  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
-  theme_no_axes() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-46-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-46-1">
-Past versions of unnamed-chunk-46-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-46-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/a23ca9f54c6e3227fb5f8a96f58fc2da9eeff115/docs/figure/lineage-drivers.Rmd/unnamed-chunk-46-1.png" target="_blank">a23ca9f</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Plot cells coloured by stage annotation:</p>
-<pre class="r"><code>ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = stage)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(name = &quot;Stage&quot;, values = EmbryoStageColours) + 
-  guides(colour = guide_legend(override.aes = list(size = 2))) + 
-  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
-  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
-  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
-  theme_no_axes() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-47-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-47-1">
-Past versions of unnamed-chunk-47-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-47-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/a23ca9f54c6e3227fb5f8a96f58fc2da9eeff115/docs/figure/lineage-drivers.Rmd/unnamed-chunk-47-1.png" target="_blank">a23ca9f</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Plot cells coloured by theiler annotation:</p>
-<pre class="r"><code>ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = theiler)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(name = &quot;Theiler&quot;, values = EmbryoTheilerColours) + 
-  guides(colour = guide_legend(override.aes = list(size = 2))) + 
   geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
   scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
   geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
@@ -2168,17 +2040,16 @@ James Ashmore
 </table>
 </div>
 </div>
-<p>Plot cells coloured by celltype annotation:</p>
-<pre class="r"><code>plt &lt;- ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = celltype)) + 
+<p>Plot cells coloured by stage annotation:</p>
+<pre class="r"><code>ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = stage)) + 
   geom_point(size = 0.1) + 
-  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
+  scale_colour_manual(name = &quot;Stage&quot;, values = EmbryoStageColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
   geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
   scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
   geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
   theme_no_axes() + 
-  theme(aspect.ratio = 1)
-
-resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)</code></pre>
+  theme(aspect.ratio = 1)</code></pre>
 <p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-49-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-49-1">
@@ -2217,6 +2088,29 @@ James Ashmore
 </table>
 </div>
 </div>
+<p>Plot cells coloured by theiler annotation:</p>
+<pre class="r"><code>ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = theiler)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = &quot;Theiler&quot;, values = EmbryoTheilerColours) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) + 
+  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
+  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)</code></pre>
+<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-50-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Plot cells coloured by celltype annotation:</p>
+<pre class="r"><code>plt &lt;- ggplot(dat$reference, aes(DiffusionMap.1, DiffusionMap.2, colour = celltype)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
+  geom_point(data = dat$query, aes(DiffusionMap.1, DiffusionMap.2, shape = sample), inherit.aes = FALSE) + 
+  scale_shape_manual(name = &quot;Sample&quot;, values = c(1, 4)) + 
+  geom_path(data = sc1, aes(DiffusionMap.1, DiffusionMap.2), size = 1, arrow = arrow(), inherit.aes = FALSE) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+
+resizeGuides(plt, pointSize = 1, textSize = 7, spaceLegend = 0.6)</code></pre>
+<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-51-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="pseudotime" class="section level2 tabset">
@@ -2255,55 +2149,7 @@ plotHeatmap(
     stage = EmbryoStageColours
   )
 )</code></pre>
-<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-53-1.png" width="1344" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-53-1">
-Past versions of unnamed-chunk-53-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-53-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/3db848bbcaae03b946b4ba780b67418cc41be6cd/docs/figure/lineage-drivers.Rmd/unnamed-chunk-53-1.png" target="_blank">3db848b</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/a23ca9f54c6e3227fb5f8a96f58fc2da9eeff115/docs/figure/lineage-drivers.Rmd/unnamed-chunk-53-1.png" target="_blank">a23ca9f</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-55-1.png" width="1344" style="display: block; margin: auto;" /></p>
 <p>Plot top 50 down-regulated genes:</p>
 <pre class="r"><code>sig.down &lt;- subset(sig, logFC &lt; 0)
 
@@ -2322,55 +2168,7 @@ plotHeatmap(
     stage = EmbryoStageColours
   )
 )</code></pre>
-<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-54-1.png" width="1344" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-54-1">
-Past versions of unnamed-chunk-54-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-54-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/3db848bbcaae03b946b4ba780b67418cc41be6cd/docs/figure/lineage-drivers.Rmd/unnamed-chunk-54-1.png" target="_blank">3db848b</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/jma1991/LPMP_WOT/blob/a23ca9f54c6e3227fb5f8a96f58fc2da9eeff115/docs/figure/lineage-drivers.Rmd/unnamed-chunk-54-1.png" target="_blank">a23ca9f</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-08-11
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/lineage-drivers.Rmd/unnamed-chunk-56-1.png" width="1344" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="summary" class="section level2">
