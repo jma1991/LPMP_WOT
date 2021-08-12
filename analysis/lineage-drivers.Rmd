@@ -708,11 +708,12 @@ plotHeatmap(
   features = head(rownames(sig.up), n = 50), 
   exprs_values = "reconstructed", 
   center = TRUE,
-  colour_columns_by = c("celltype", "source"), 
+  colour_columns_by = c("celltype", "source", "stage"), 
   order_columns_by = "slingPseudotime_1", 
   column_annotation_colors = list(
     celltype = EmbryoCelltypeColours,
-    source = EmbryoSourceColours
+    source = EmbryoSourceColours,
+    stage = EmbryoStageColours
   )
 )
 ```
@@ -729,11 +730,12 @@ plotHeatmap(
   features = head(rownames(sig.down), n = 50), 
   exprs_values = "reconstructed", 
   center = TRUE,
-  colour_columns_by = c("celltype", "source"), 
+  colour_columns_by = c("celltype", "source", "stage"), 
   order_columns_by = "slingPseudotime_1", 
   column_annotation_colors = list(
     celltype = EmbryoCelltypeColours,
-    source = EmbryoSourceColours
+    source = EmbryoSourceColours,
+    stage = EmbryoStageColours
   )
 )
 ```
