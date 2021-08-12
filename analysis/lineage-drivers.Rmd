@@ -401,7 +401,7 @@ Plot E8.0 LHF fate:
 ggplot(dat, aes(UMAP.1, UMAP.2, colour = fates_8.0_lhf)) + 
   geom_point(size = 0.1) + 
   scale_colour_viridis_c(name = "Probability") + 
-  ggtitle("Fate/E8.0/LHF)") + 
+  ggtitle("Fate/E8.0/LHF") + 
   facet_grid(source ~ stage) + 
   theme_no_axes() + 
   theme(aspect.ratio = 1)
@@ -473,6 +473,23 @@ Subset celltype colours for downstream plotting:
 ind <- names(EmbryoCelltypeColours) %in% alt$celltype
 
 EmbryoCelltypeColours <- EmbryoCelltypeColours[ind]
+```
+
+Create a per-cell data frame:
+
+```{r}
+dat <- makePerCellDF(sce)
+```
+
+Display the cells which have been selected:
+
+```{r}
+ggplot(dat, aes(UMAP.1, UMAP.2, colour = celltype)) + 
+  geom_point(size = 0.1) + 
+  scale_colour_manual(values = EmbryoCelltypeColours, limits = force) + 
+  facet_grid(source ~ stage) + 
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
 ```
 
 ## Correction
