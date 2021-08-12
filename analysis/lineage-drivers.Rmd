@@ -475,23 +475,6 @@ ind <- names(EmbryoCelltypeColours) %in% alt$celltype
 EmbryoCelltypeColours <- EmbryoCelltypeColours[ind]
 ```
 
-Create a per-cell data frame:
-
-```{r}
-dat <- makePerCellDF(alt)
-```
-
-Display the cells which have been selected:
-
-```{r}
-ggplot(dat, aes(UMAP.1, UMAP.2, colour = celltype)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(values = EmbryoCelltypeColours, limits = force) + 
-  facet_grid(source ~ stage) + 
-  theme_no_axes() + 
-  theme(aspect.ratio = 1)
-```
-
 ## Correction
 
 Create merge order for batch correction:
